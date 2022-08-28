@@ -1,10 +1,54 @@
 // import AppError from '../errors/AppError';
 
+import { getCustomRepository } from 'typeorm';
+
+import TransactionsRepository from '../repositories/TransactionsRepository';
+
 import Transaction from '../models/Transaction';
 
+import AppError from '../errors/AppError';
+
+import CreateCategoryService from './CreateCategoryService';
+
+interface Request {
+  title: string;
+  value: number;
+  type: 'income' | 'outcome';
+  category: string;
+}
+
 class CreateTransactionService {
-  public async execute(): Promise<Transaction> {
-    // TODO
+  public async execute({
+    title,
+    value,
+    type,
+    category,
+  }: Request): Promise<Transaction> {
+    const transactionsRepository = getCustomRepository(TransactionsRepository);
+    const ballance = await transactionsRepository.getBalance();
+
+    if (type === 'outcome') {
+      if (ballance.total - value < 0) {
+        throw new AppError('Invalid ballance error!');
+      }
+    }
+
+    const createCategory = new CreateCategoryService();
+
+    const { id } = await createCategory.execute(category);
+
+    const transaction = transactionsRepository.create({
+      title,
+      value,
+      type,
+      category_id: id,
+      created_at: Date.now(),
+      updated_at: Date.now(),
+    });
+
+    await transactionsRepository.save(transaction);
+
+    return transaction;
   }
 }
 
