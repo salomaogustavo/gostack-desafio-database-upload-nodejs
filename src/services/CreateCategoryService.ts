@@ -7,7 +7,7 @@ import CategoriesRepository from '../repositories/CategoriesRepository';
 class CreateCategoryService {
   public async execute(title: string): Promise<Category> {
     const categoriesRepository = getCustomRepository(CategoriesRepository);
-    const categoryExists = await categoriesRepository.findByTitle(title);
+    const categoryExists = await categoriesRepository.findOneByTitle(title);
 
     if (!categoryExists) {
       const category = categoriesRepository.create({

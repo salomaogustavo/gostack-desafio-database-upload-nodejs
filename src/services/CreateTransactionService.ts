@@ -25,9 +25,10 @@ class CreateTransactionService {
     category,
   }: Request): Promise<Transaction> {
     const transactionsRepository = getCustomRepository(TransactionsRepository);
-    const ballance = await transactionsRepository.getBalance();
 
     if (type === 'outcome') {
+      const ballance = await transactionsRepository.getBalance();
+
       if (ballance.total - value < 0) {
         throw new AppError('Invalid ballance error!');
       }

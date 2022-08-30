@@ -1,15 +1,23 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, In, Repository } from 'typeorm';
 
 import Category from '../models/Category';
 
 @EntityRepository(Category)
 class CategoriesRepository extends Repository<Category> {
-  public async findByTitle(title: string): Promise<Category | null> {
-    const findCategory = await this.findOne({
-      where: { title },
+  public async findOneByTitle(title: string): Promise<Category | null> {
+    const categoryExists = await this.findOne({
+      where: { title: In([title]) },
     });
 
-    return findCategory || null;
+    return categoryExists || null;
+  }
+
+  public async findByTitles(titles: string[]): Promise<Category[] | null> {
+    const categoryExists = await this.find({
+      where: { title: In(titles) },
+    });
+
+    return categoryExists || null;
   }
 }
 
